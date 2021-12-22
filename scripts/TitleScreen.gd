@@ -1,5 +1,6 @@
 extends Node2D
 
+#adding to the github channel ^^
 
 func _ready():
 	$AnimationPlayer.play("intro")
