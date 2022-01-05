@@ -10,7 +10,7 @@ var subLevel = 1
 var isFirstLevel = true
 var transitionValue
 
-export (int, 1, 6) var amountToSpawn = 5
+export (int, 1, 6) var amountToSpawn = 6
 export (Array, int) var pointsPerLevel = []
 
 export (int) var upTime = 2
@@ -116,15 +116,15 @@ func amount_to_spawn_by_level():
 	randomize()
 	match level:
 		1:
-			amountToSpawn = int(rand_range(1, 6))
+			amountToSpawn = round(rand_range(2, 6))
 		2:
-			amountToSpawn = int(rand_range(1, 5))
+			amountToSpawn = round(rand_range(2, 5))
 		3:
-			amountToSpawn = int(rand_range(1, 4))
+			amountToSpawn = round(rand_range(2, 4))
 		4:
-			amountToSpawn = int(rand_range(1, 3))
+			amountToSpawn = round(rand_range(2, 3))
 		5:
-			amountToSpawn = int(rand_range(1, 2))
+			amountToSpawn = 2
 
 func time_up_per_sublevel():
 	downTime = 5.0 / level
