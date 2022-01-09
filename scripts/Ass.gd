@@ -12,3 +12,8 @@ func _on_Hurtbox_area_entered(area):
 func _on_SmackAnimationPlayer_animation_finished(anim_name):
 	if anim_name == "smacked":
 		get_node("../../..").smack_finished(self)
+
+func _on_AnimationPlayer_animation_finished(anim_name):
+	if anim_name == "ass_lift":
+		$Hurtbox/Hurtbox.set_deferred("disabled", false)
+		print("AAAA")
