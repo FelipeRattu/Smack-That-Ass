@@ -5,7 +5,7 @@ var assesInstances = []
 var liftedAsses = []
 
 var previousLevel = 1
-var level  = 1
+var level = 1
 var subLevel = 1
 var isFirstLevel = true
 var transitionValue
@@ -17,10 +17,12 @@ export (int) var upTime = 2
 export (int) var downTime = 2
 
 export (int) var pointStep = 100
-export (int) var gameTime = 10
+export (int) var gameTime = 30
 export (int) var timeStep = 3
+var timeCombo = 0
 
 var points = 0
+var combo = 0
 
 func _ready():
 	update_labels()
@@ -29,9 +31,16 @@ func _ready():
 
 func ass_smacked(ass):
 	if !$AssLiftTimer.is_stopped():
-		points += pointStep
+#		points += pointStep
+		$GUI/ComboLabel/AnimationPlayer.stop()
+		combo += 1
+		$GUI/ComboLabel.bbcode_text = " + " + str((pointStep*combo)*combo)
+		$GUI/ComboLabel/AnimationPlayer.play("combo")
 		level_transitions()
-		gameTime += timeStep
+		$GameTimer/AnimationPlayer.stop()
+		timeCombo += timeStep
+		$GUI/TimerLabel/AddTimeLabel.bbcode_text = "a " + str(timeCombo)
+		$GameTimer/AnimationPlayer.play("add_time")
 		update_labels()
 		ass.get_node("SmackAnimationPlayer").play("smacked")
 		ass.get_node("SweatAnimationPlayer").play("sweat")
@@ -128,21 +137,25 @@ func amount_to_spawn_by_level():
 
 func time_up_per_sublevel():
 	downTime = 5.0 / level
-#	match subLevel:
-#		1:
-#			downTime = 3.0
-#		2:
-#			downTime = 2.5
-#		3:
-#			downTime = 2.0
-#		4:
-#			downTime = 1.5
-#		5:
-#			downTime = 1.0
 	
 	$AssDownTimer.wait_time = downTime
 
 func update_labels():
-	$GUI/LevelLabel.bbcode_text = "[wave amp=50 freq=5]" + str(level) + " - " + str(subLevel) + "[/wave]"
-	$GUI/TimerLabel.bbcode_text = "[wave amp=50 freq=5]" + str(gameTime) + "[/wave]"
-	$GUI/RichTextLabel.bbcode_text = "[wave amp=50 freq=5]" + str(points) + "[/wave]"
+	$GUI/LevelLabel.bbcode_text = "[wave amp=50 freq=6]" + str(level) + " - " + str(subLevel) + "[/wave]"
+	$GUI/TimerLabel.bbcode_text = "[wave amp=50 freq=6]" + str(gameTime) + "[/wave]"
+	$GUI/PointsLabel.bbcode_text = "[wave amp=50 freq=6]" + str(points) + "[/wave]"
+
+
+func _on_AnimationPlayer_animation_finished(anim_name):
+	if anim_name == "add_time":
+		gameTime += timeCombo
+		timeCombo = 0
+	elif anim_name == "combo":
+		var comboPoints = (pointStep * combo) * combo
+		var i = 0
+		combo = 0
+		while i < comboPoints:
+			points += 1
+			yield(get_tree().create_timer(.0000001), "timeout")
+			$GUI/PointsLabel.bbcode_text = str(points)
+			i += 1
