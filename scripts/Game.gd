@@ -23,6 +23,7 @@ var timeCombo = 0
 
 var points = 0
 var combo = 0
+var comboLabel = 1
 
 func _ready():
 	update_labels()
@@ -32,24 +33,19 @@ func _ready():
 func ass_smacked(ass):
 	if !$AssLiftTimer.is_stopped():
 #		points += pointStep
-		$GUI/ComboLabel/AnimationPlayer.stop()
-		combo += 1
-		$GUI/ComboLabel.bbcode_text = " + " + str((pointStep*combo)*combo)
-		$GUI/ComboLabel/AnimationPlayer.play("combo")
-		level_transitions()
 		$GameTimer/AnimationPlayer.stop()
+		combo += 1
+		level_transitions()
 		timeCombo += timeStep
 		$GUI/TimerLabel/AddTimeLabel.bbcode_text = "a " + str(timeCombo)
 		$GameTimer/AnimationPlayer.play("add_time")
 		update_labels()
-		ass.get_node("SmackAnimationPlayer").play("smacked")
-		ass.get_node("SweatAnimationPlayer").play("sweat")
+		ass.smacky_smacked()
 		liftedAsses.erase(ass)
 		amount_to_spawn_by_level()
 
 func smack_finished(ass):
-	ass.get_node("AnimationPlayer").play("RESET")
-	ass.get_node("AnimationPlayer").play("ass_down")
+	ass.smack_is_no_more()
 
 
 func _on_AssLiftTimer_timeout():
@@ -152,10 +148,19 @@ func _on_AnimationPlayer_animation_finished(anim_name):
 		timeCombo = 0
 	elif anim_name == "combo":
 		var comboPoints = (pointStep * combo) * combo
-		var i = 0
 		combo = 0
+		comboLabel = 1
+		var i = 0
 		while i < comboPoints:
 			points += 1
-			yield(get_tree().create_timer(.0000001), "timeout")
+			yield(get_tree(),"idle_frame")
 			$GUI/PointsLabel.bbcode_text = str(points)
 			i += 1
+
+func combo_received():
+	$GUI/ComboLabel/AnimationPlayer.stop()
+	$GUI/ComboLabel.bbcode_text = " + " + str((pointStep*comboLabel)*comboLabel)
+	$GUI/ComboLabel/AnimationPlayer.play("combo")
+	$GUI/ComboLabel/ComboPlayer.stop()
+	$GUI/ComboLabel/ComboPlayer.play("Bounce")
+	comboLabel += 1
